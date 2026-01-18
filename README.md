@@ -86,3 +86,14 @@ List all available ReqnRoll bindings.
 ```
 7. Before using a specific functionality (named "Tool" in the MCP world) for the first time, the chat will ask for your permission via a prompt.
 After confirming that prompt, you should get an answer listing all available ReqnRoll bindings in the defined assemblies.
+
+## "Unable to load type" and similar messages
+Make sure all dependencies of the assemblies configured in `inputs.json` lie either next to the assembly or in the base directory of the MCP server. The easieest way to achieve this is by setting the paths of a runnable, buildable ReqnRoll project referencing and using those bindings instead of the bindings project itself.
+
+## The documentation XML is nowhere to be found
+Depending on the configuration of the bindings csproj file, XML documentation is not always copied to the output directory. 
+In that case, either adjust the bindings project to copy the XML documentation to the output directory or provide the path to the XML documentation manually in `inputs.json`. 
+In case of nuget packages, check `%HOMEPATH%/.nuget/packages` for the XML documentation files.
+
+## Bonus: Markdown Documentation Generator
+The repository also includes a simple console application that generates markdown documentation for all available ReqnRoll bindings based on the same `inputs.json` file used by the MCP server. Simply start the console app with an argument providing the desired output file path (eg. `C:/source/Bindings.md`) and prepared `inputs.json`.
