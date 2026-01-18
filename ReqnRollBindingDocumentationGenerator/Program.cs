@@ -1,24 +1,17 @@
-﻿using System.Text.Json;
+﻿// See https://aka.ms/new-console-template for more information
+
 using ReqnRollBindingDocumentationGenerator;
 using ReqnRollBindingMetadataExtractorService.Model;
 using ReqnRollBindingMetadataExtractorService.Services;
 
-if (!args.Any())
-{
-    throw new InvalidOperationException("Please set output path argument.");
-}
+Console.WriteLine("Hello, World!");
 
 var metaData = new List<BindingMetadata>();
 
-var inputsJson = File.ReadAllText("inputs.json");
-var inputs = JsonSerializer.Deserialize<List<BindingAssemblyInput>>(inputsJson)!;
+var metaData = new List<BindingMetadata>();
 
-foreach(var input in inputs)
-{
-    var metadataService = new BindingMetadataExtractorService(input.Dll, input.Xml);
-    metaData.AddRange(metadataService.LoadMetadata());
-}
+// TODO: Load inputs.json
 
 var markdown = MarkdownGenerator.GenerateMarkdown(metaData);
 
-File.WriteAllText(args[0],markdown);
+Console.WriteLine(markdown);
