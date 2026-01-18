@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
 using ModelContextProtocol.Server;
+using ReqnRollBindingMetadataExtractorService.Services;
 
 namespace ReqnRollMcpServer.Tools;
 
