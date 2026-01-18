@@ -86,3 +86,6 @@ List all available ReqnRoll bindings.
 ```
 7. Before using a specific functionality (named "Tool" in the MCP world) for the first time, the chat will ask for your permission via a prompt.
 After confirming that prompt, you should get an answer listing all available ReqnRoll bindings in the defined assemblies.
+
+## Bonus: Markdown Documentation Generator
+The repository also includes a simple console application that generates markdown documentation for all available ReqnRoll bindings based on the same `inputs.json` file used by the MCP server. Simply start the console app with an argument providing the desired output file path (eg. `C:/source/Bindings.md`) and prepared `inputs.json`.

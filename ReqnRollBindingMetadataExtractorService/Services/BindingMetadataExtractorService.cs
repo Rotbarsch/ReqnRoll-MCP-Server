@@ -26,7 +26,14 @@ public class BindingMetadataExtractorService
         AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
         {
             var name = new AssemblyName(eventArgs.Name).Name + ".dll";
-            var candidate = Path.Combine(((AppDomain)sender!).BaseDirectory, name);
+            var dllDir = Path.GetDirectoryName(_dllPath)!;
+
+            // Probe next to the target DLL first
+            var candidate = Path.Combine(dllDir, name);
+            if (File.Exists(candidate)) return Assembly.LoadFrom(candidate);
+
+            // Fallback to the app base directory
+            candidate = Path.Combine(AppContext.BaseDirectory, name);
             return File.Exists(candidate) ? Assembly.LoadFrom(candidate) : null;
         };
 
