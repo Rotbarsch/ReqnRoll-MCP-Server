@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqnRollMcpServer", "ReqnRollMcpServer\ReqnRollMcpServer.csproj", "{DAC089D5-9445-429F-8640-0A6AE8F7A775}"
 EndProject
@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqnRollBindingMetadataExtractorService", "ReqnRollBindingMetadataExtractorService\ReqnRollBindingMetadataExtractorService.csproj", "{F3FD9A38-B4BC-4E42-99FC-029F87E88FFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqnRollBindingDocumentationGenerator", "ReqnRollBindingDocumentationGenerator\ReqnRollBindingDocumentationGenerator.csproj", "{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,18 @@ Global
 		{F3FD9A38-B4BC-4E42-99FC-029F87E88FFC}.Release|x64.Build.0 = Release|Any CPU
 		{F3FD9A38-B4BC-4E42-99FC-029F87E88FFC}.Release|x86.ActiveCfg = Release|Any CPU
 		{F3FD9A38-B4BC-4E42-99FC-029F87E88FFC}.Release|x86.Build.0 = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|x64.Build.0 = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA0EFD91-3B7A-41DB-87B1-50DA8D7F893B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

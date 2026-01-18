@@ -18,7 +18,7 @@ public class BindingMetadataExtractorService
         _xmlDocumentationProvider = !string.IsNullOrEmpty(xmlPath) ? new XmlDocumentationProvider(xmlPath) : new XmlDocumentationProvider(defaultDocPath);
     }
 
-    public List<BindingMetadata> Go()
+    public List<BindingMetadata> LoadMetadata()
     {
         var metadata = new List<BindingMetadata>();
         var assembly = Assembly.LoadFrom(_dllPath);
@@ -30,26 +30,31 @@ public class BindingMetadataExtractorService
             return File.Exists(candidate) ? Assembly.LoadFrom(candidate) : null;
         };
 
-        var relevantClasses = assembly.GetTypes().Where(x => x.GetCustomAttributes(true).Any(a => a is BindingAttribute)).ToList();
-
-        foreach (var c in relevantClasses)
+        var bindingAttr = typeof(BindingAttribute);
+        var typesInAssembly = assembly.GetTypes();
+        foreach (var type in typesInAssembly)
         {
-            var methods = c.GetMethods().Where(m =>
-                    m.GetCustomAttributes(true)
-                        .Any(a => a is GivenAttribute or WhenAttribute or ThenAttribute))
-                .ToList();
+            try { if (!type.GetCustomAttributes(bindingAttr, inherit: true).Any()) continue; } catch { continue; }
+
+            if (type.GetCustomAttribute<BindingAttribute>() is null) continue;
+
+            MethodInfo[] methods;
+            try { methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); } catch { continue; }
+
 
             foreach (var method in methods)
             {
-                foreach (StepDefinitionBaseAttribute stepBindingAttribute in method.GetCustomAttributes(true)
-                             .Where(a => a is GivenAttribute or WhenAttribute or ThenAttribute))
+                object[] attrs;
+                try { attrs = method.GetCustomAttributes(typeof(StepDefinitionBaseAttribute), true); } catch { continue; }
+
+                foreach (StepDefinitionBaseAttribute stepBindingAttribute in attrs)
                 {
                     metadata.Add(new BindingMetadata
                     {
                         Source = new BindingSourceMetadata
                         {
                             Assembly = assembly.FullName!.Split(",").First(),
-                            ClassName = c.Name,
+                            ClassName = type.Name,
                             MethodName = method.Name
                         },
                         StepType = GetStepType(stepBindingAttribute),
@@ -98,7 +103,7 @@ public class BindingMetadataExtractorService
             result.Add(new BindingSourceParameterInfo
             {
                 Name = parameter.Name!,
-                Description = _xmlDocumentationProvider.GetParameterComment(method,parameter),
+                Description = _xmlDocumentationProvider.GetParameterComment(method, parameter),
                 ParameterType = parameter.ParameterType.Name
             });
         }

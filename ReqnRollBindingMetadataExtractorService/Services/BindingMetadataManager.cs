@@ -22,7 +22,7 @@ public static class BindingMetadataManager
         foreach (var input in inputs!)
         {
             var service = new BindingMetadataExtractorService(input.Dll,input.Xml);
-            var metadata = service.Go();
+            var metadata = service.LoadMetadata();
             _metadata.AddRange(metadata);
         }
     }
