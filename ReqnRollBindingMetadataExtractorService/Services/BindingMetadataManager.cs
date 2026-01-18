@@ -3,11 +3,11 @@ using ReqnRollBindingMetadataExtractorService.Model;
 
 namespace ReqnRollBindingMetadataExtractorService.Services;
 
-internal static class BindingMetadataManager
+public static class BindingMetadataManager
 {
     private static List<BindingMetadata> _metadata= new List<BindingMetadata>();
 
-    internal static void Initialize()
+    public static void Initialize()
     {
         _metadata = new List<BindingMetadata>();
 
@@ -27,17 +27,17 @@ internal static class BindingMetadataManager
         }
     }
 
-    internal static List<BindingMetadata> GetAll()
+    public static List<BindingMetadata> GetAll()
     {
         return _metadata;
     }
 
-    internal static List<BindingMetadata> GetBindingsInAssembly(string assemblyName)
+    public static List<BindingMetadata> GetBindingsInAssembly(string assemblyName)
     {
         return _metadata.Where(x => x.Source.Assembly == assemblyName).ToList();
     }
 
-    internal static List<BindingMetadata> GetBindingsByStepDefinitionType(string type)
+    public static List<BindingMetadata> GetBindingsByStepDefinitionType(string type)
     {
         return _metadata.Where(x => x.StepType == type).ToList();
     }
