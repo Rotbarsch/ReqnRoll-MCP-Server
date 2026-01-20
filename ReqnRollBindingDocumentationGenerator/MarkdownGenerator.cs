@@ -8,12 +8,18 @@ public static class MarkdownGenerator
     private const string TableHeader = "| MethodName | BindingValue | Comments |";
     private const string TableSeparator = "|------------|--------------|----------|";
 
-    public static string GenerateMarkdown(IEnumerable<BindingMetadata> bindingInfos)
+    public static string GenerateMarkdown(BindingMetadata? bindingInfos)
     {
         if (bindingInfos == null) return string.Empty;
 
         var sb = new StringBuilder();
+
+        var classDocumentations = bindingInfos.BindingClasses.ToDictionary(
+            x => x.ClassFullName, 
+            x => x.Description);
+
         var byNamespace = bindingInfos
+            .StepDefinitions
             .GroupBy(b => b.Source.Assembly)
             .OrderBy(g => g.Key)
             .ToList();
@@ -22,13 +28,14 @@ public static class MarkdownGenerator
 
         foreach (var nsGroup in byNamespace)
         {
-            AppendNamespaceSection(sb, nsGroup);
+            AppendNamespaceSection(sb, nsGroup, classDocumentations);
         }
 
         return sb.ToString();
     }
 
-    private static void AppendNamespaceSection(StringBuilder sb, IGrouping<string, BindingMetadata> nsGroup)
+    private static void AppendNamespaceSection(StringBuilder sb, IGrouping<string, StepDefinitionMetadata> nsGroup,
+        Dictionary<string, string> classDocumentations)
     {
         var nsHeader = $"Namespace: {nsGroup.Key}";
         var nsAnchor = ToMarkdownAnchor(nsHeader);
@@ -37,22 +44,26 @@ public static class MarkdownGenerator
         sb.AppendLine($"# {nsHeader}");
 
         var byClass = nsGroup
-            .GroupBy(b => b.Source.ClassName)
+            .GroupBy(b => b.Source.ClassFullName)
             .OrderBy(g => g.Key);
 
         foreach (var classGroup in byClass)
         {
-            AppendClassSection(sb, classGroup);
+            var classDocumentation = classDocumentations.SingleOrDefault(x => x.Key == classGroup.Key).Value ?? string.Empty;
+            AppendClassSection(sb, classGroup,classDocumentation);
         }
     }
 
-    private static void AppendClassSection(StringBuilder sb, IGrouping<string, BindingMetadata> classGroup)
+    private static void AppendClassSection(StringBuilder sb, IGrouping<string, StepDefinitionMetadata> classGroup,
+        string classDocumentation)
     {
         var classHeader = $"Class: {classGroup.Key}";
         var classAnchor = ToMarkdownAnchor(classHeader);
 
         sb.AppendLine($"\n<a id=\"{classAnchor}\"></a>");
         sb.AppendLine($"## {classHeader}");
+        sb.AppendLine();
+        sb.AppendLine(classDocumentation);
         sb.AppendLine();
         sb.AppendLine(TableHeader);
         sb.AppendLine(TableSeparator);
@@ -68,7 +79,7 @@ public static class MarkdownGenerator
         sb.AppendLine();
     }
 
-    private static string BuildTableOfContents(List<IGrouping<string, BindingMetadata>> byNamespace)
+    private static string BuildTableOfContents(List<IGrouping<string, StepDefinitionMetadata>> byNamespace)
     {
         var toc = new StringBuilder();
         toc.AppendLine("## Table of Contents");
@@ -95,7 +106,7 @@ public static class MarkdownGenerator
         return toc.ToString();
     }
 
-    private static string BuildCommentsString(string comments, IEnumerable<BindingSourceParameterInfo> parameters)
+    private static string BuildCommentsString(string comments, IEnumerable<StepDefinitionParameterInfo> parameters)
     {
         var sb = new StringBuilder();
         var hasContent = false;
