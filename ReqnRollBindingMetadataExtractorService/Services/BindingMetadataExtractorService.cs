@@ -18,9 +18,15 @@ public class BindingMetadataExtractorService
         _xmlDocumentationProvider = !string.IsNullOrEmpty(xmlPath) ? new XmlDocumentationProvider(xmlPath) : new XmlDocumentationProvider(defaultDocPath);
     }
 
-    public List<BindingMetadata> LoadMetadata()
+    public BindingMetadata LoadMetadata()
     {
-        var metadata = new List<BindingMetadata>();
+        var result = new BindingMetadata
+        {
+            BindingClasses = new List<BindingClassMetadata>(),
+            StepDefinitions = new List<StepDefinitionMetadata>(),
+        };
+
+        var stepDefinitionsMetadata = new List<StepDefinitionMetadata>();
         var assembly = Assembly.LoadFrom(_dllPath);
 
         AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
@@ -48,6 +54,7 @@ public class BindingMetadataExtractorService
             MethodInfo[] methods;
             try { methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); } catch { continue; }
 
+            result.BindingClasses.Add(GetBindingClassMetadata(type));
 
             foreach (var method in methods)
             {
@@ -56,12 +63,13 @@ public class BindingMetadataExtractorService
 
                 foreach (StepDefinitionBaseAttribute stepBindingAttribute in attrs)
                 {
-                    metadata.Add(new BindingMetadata
+                    stepDefinitionsMetadata.Add(new StepDefinitionMetadata
                     {
-                        Source = new BindingSourceMetadata
+                        Source = new StepDefinitionSourceMetadata
                         {
                             Assembly = assembly.FullName!.Split(",").First(),
                             ClassName = type.Name,
+                            ClassFullName = type.FullName!,
                             MethodName = method.Name
                         },
                         StepType = GetStepType(stepBindingAttribute),
@@ -75,7 +83,20 @@ public class BindingMetadataExtractorService
             }
         }
 
-        return metadata;
+        result.StepDefinitions = stepDefinitionsMetadata;
+
+        return result;
+    }
+
+    private BindingClassMetadata GetBindingClassMetadata(Type type)
+    {
+        return new BindingClassMetadata
+        {
+            Assembly = type.Assembly.FullName?.Split(",")?.First() ?? "unknown",
+            ClassName = type.Name ?? "unknown",
+            ClassFullName = type.FullName ?? "unknown",
+            Description = _xmlDocumentationProvider.GetClassComment(type),
+        };
     }
 
     private static string GetStepType(StepDefinitionBaseAttribute stepBindingAttribute)
@@ -102,12 +123,12 @@ public class BindingMetadataExtractorService
         return _xmlDocumentationProvider.GetMethodComment(method);
     }
 
-    private List<BindingSourceParameterInfo> GetStepDefinitionParameters(MethodInfo method)
+    private List<StepDefinitionParameterInfo> GetStepDefinitionParameters(MethodInfo method)
     {
-        var result = new List<BindingSourceParameterInfo>();
+        var result = new List<StepDefinitionParameterInfo>();
         foreach (var parameter in method.GetParameters())
         {
-            result.Add(new BindingSourceParameterInfo
+            result.Add(new StepDefinitionParameterInfo
             {
                 Name = parameter.Name!,
                 Description = _xmlDocumentationProvider.GetParameterComment(method, parameter),
