@@ -8,17 +8,23 @@ if (!args.Any())
     throw new InvalidOperationException("Please set output path argument.");
 }
 
-var metaData = new List<BindingMetadata>();
-
 var inputsJson = File.ReadAllText("inputs.json");
 var inputs = JsonSerializer.Deserialize<List<BindingAssemblyInput>>(inputsJson)!;
+
+var result = new BindingMetadata()
+{
+    StepDefinitions = new List<StepDefinitionMetadata>(),
+    BindingClasses = new List<BindingClassMetadata>(),
+};
 
 foreach(var input in inputs)
 {
     var metadataService = new BindingMetadataExtractorService(input.Dll, input.Xml);
-    metaData.AddRange(metadataService.LoadMetadata());
+    var inputMetadata = metadataService.LoadMetadata();
+    result.StepDefinitions.AddRange(inputMetadata.StepDefinitions);
+    result.BindingClasses.AddRange(inputMetadata.BindingClasses);
 }
 
-var markdown = MarkdownGenerator.GenerateMarkdown(metaData);
+var markdown = MarkdownGenerator.GenerateMarkdown(result);
 
 File.WriteAllText(args[0],markdown);

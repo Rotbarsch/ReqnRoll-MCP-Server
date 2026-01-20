@@ -24,8 +24,6 @@ public class XmlDocumentationProvider
 
     private string ConstructXPathMethodIdentifier(MethodInfo method)
     {
-        //M:NatLaRestTest.Bindings.Actions.BasicVariableBindings.#ctor(NatLaRestTest.Logic.Interfaces.IBasicVariableLogic)
-
         string parametersString = string.Empty;
         var methodParams = method.GetParameters();
         if (methodParams.Any())
@@ -43,5 +41,11 @@ public class XmlDocumentationProvider
         var paramComment = _xDoc.XPathSelectElement($".//member[@name=\"{ConstructXPathMethodIdentifier(method)}\"]/param[@name=\"{parameter.Name}\"]")?.Value ?? string.Empty;
 
         return paramComment.Trim();
+    }
+
+    public string GetClassComment(Type type)
+    {
+        return (_xDoc.XPathSelectElement($".//member[@name=\"T:{type.FullName}\"]/summary")?.Value ?? string.Empty)
+            .Trim();
     }
 }
