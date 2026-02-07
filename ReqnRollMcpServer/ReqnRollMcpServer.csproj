@@ -16,10 +16,4 @@
     <ProjectReference Include="..\ReqnRollBindingMetadataExtractorService\ReqnRollBindingMetadataExtractorService.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="inputs.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

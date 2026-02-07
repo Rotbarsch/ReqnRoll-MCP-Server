@@ -1,44 +1,41 @@
-﻿using System.Text.Json;
-using ReqnRollBindingMetadataExtractorService.Model;
+﻿using ReqnRollBindingMetadataExtractorService.Model;
 
 namespace ReqnRollBindingMetadataExtractorService.Services;
 
 public static class BindingMetadataManager
 {
-    private static List<BindingMetadata> _metadata= new List<BindingMetadata>();
-
-    public static void Initialize()
+    public static List<BindingMetadata> GetAll(string currentWorkingDirectory)
     {
-        _metadata = new List<BindingMetadata>();
+        var result = new List<BindingMetadata>();
+        var filePairs = GetFilePairs(currentWorkingDirectory);
 
-        var assemblyLocation = typeof(BindingMetadataManager).Assembly.Location;
-        var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-        
-        var inputFileName = Path.Join(assemblyDirectory, "inputs.json");
-        var inputJson = File.ReadAllText(inputFileName);
-
-        var inputs = JsonSerializer.Deserialize<List<BindingAssemblyInput>>(inputJson);
-
-        foreach (var input in inputs!)
+        foreach (var fp in filePairs)
         {
-            using var service = new BindingMetadataExtractorService(input.Dll,input.Xml);
+            using var service = new BindingMetadataExtractorService(fp.DllFile, fp.XmlFile);
             var metadata = service.LoadMetadata();
-            _metadata.AddRange(metadata);
+            result.AddRange(metadata);
         }
+
+        return result;
     }
 
-    public static List<BindingMetadata> GetAll()
+    private static List<(string DllFile, string XmlFile)> GetFilePairs(string currentWorkingDirectory)
     {
-        return _metadata;
-    }
+        var result = new List<(string DllFile, string XmlFile)>();
 
-    public static List<BindingMetadata> GetBindingsInAssembly(string assemblyName)
-    {
-        return _metadata.Where(x => x.Source.Assembly == assemblyName).ToList();
-    }
+        var dllFiles = Directory.EnumerateFiles(currentWorkingDirectory, "*", SearchOption.AllDirectories)
+            .Where(x => x.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            .DistinctBy(Path.GetFileNameWithoutExtension)
+            .ToArray();
 
-    public static List<BindingMetadata> GetBindingsByStepDefinitionType(string type)
-    {
-        return _metadata.Where(x => x.StepType == type).ToList();
+        foreach (var dll in dllFiles)
+        {
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(dll);
+            var dir = Path.GetDirectoryName(dll);
+            var possibleXmlPath = Path.Join(dir, nameWithoutExtension + ".xml");
+            result.Add((dll, possibleXmlPath));
+        }
+
+        return result;
     }
 }
