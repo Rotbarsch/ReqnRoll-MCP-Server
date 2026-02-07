@@ -1,120 +1,118 @@
-﻿using System.Reflection;
-using Reqnroll;
-using ReqnRollBindingMetadataExtractorService.Model;
+﻿using ReqnRollBindingMetadataExtractorService.Model;
+using Mono.Cecil;
+using Mono.Collections.Generic;
+using CustomAttribute = Mono.Cecil.CustomAttribute;
+using ModuleDefinition = Mono.Cecil.ModuleDefinition;
 
 namespace ReqnRollBindingMetadataExtractorService.Services;
 
-public class BindingMetadataExtractorService
+public class BindingMetadataExtractorService : IDisposable
 {
-    private readonly string _dllPath;
     private readonly XmlDocumentationProvider _xmlDocumentationProvider;
+    private readonly ModuleDefinition _module;
 
     public BindingMetadataExtractorService(string dllPath, string? xmlPath = null)
     {
-        _dllPath = dllPath;
-
         var defaultDocPath = Path.ChangeExtension(dllPath, "xml");
 
         _xmlDocumentationProvider = !string.IsNullOrEmpty(xmlPath) ? new XmlDocumentationProvider(xmlPath) : new XmlDocumentationProvider(defaultDocPath);
+        _module = ModuleDefinition.ReadModule(dllPath);
     }
-
+    
     public List<BindingMetadata> LoadMetadata()
     {
         var metadata = new List<BindingMetadata>();
-        var assembly = Assembly.LoadFrom(_dllPath);
+        string[] stepDefinitionAttributeNames = ["Reqnroll.GivenAttribute","Reqnroll.WhenAttribute", "Reqnroll.ThenAttribute"];
 
-        AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
+        foreach (var type in _module.Types.OrderBy(x=>x.Name))
         {
-            var name = new AssemblyName(eventArgs.Name).Name + ".dll";
-            var dllDir = Path.GetDirectoryName(_dllPath)!;
+            if (!type.CustomAttributes.Select(x => x.AttributeType.FullName)
+                .Any(x => x == "Reqnroll.BindingAttribute")) continue;
 
-            // Probe next to the target DLL first
-            var candidate = Path.Combine(dllDir, name);
-            if (File.Exists(candidate)) return Assembly.LoadFrom(candidate);
+            var typeComment = GetTypeDescription(type.FullName);
 
-            // Fallback to the app base directory
-            candidate = Path.Combine(AppContext.BaseDirectory, name);
-            return File.Exists(candidate) ? Assembly.LoadFrom(candidate) : null;
-        };
-
-        var bindingAttr = typeof(BindingAttribute);
-        var typesInAssembly = assembly.GetTypes();
-        foreach (var type in typesInAssembly)
-        {
-            try { if (!type.GetCustomAttributes(bindingAttr, inherit: true).Any()) continue; } catch { continue; }
-
-            if (type.GetCustomAttribute<BindingAttribute>() is null) continue;
-
-            MethodInfo[] methods;
-            try { methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); } catch { continue; }
-
-
-            foreach (var method in methods)
+            foreach (var method in type.Methods.OrderBy(x=>x.Name))
             {
-                object[] attrs;
-                try { attrs = method.GetCustomAttributes(typeof(StepDefinitionBaseAttribute), true); } catch { continue; }
+                var stepDefinitionAttributes = method.CustomAttributes
+                    .Where(x => stepDefinitionAttributeNames.Contains(x.AttributeType.FullName))
+                    .ToList();
 
-                foreach (StepDefinitionBaseAttribute stepBindingAttribute in attrs)
+                if (!stepDefinitionAttributes.Any()) continue;
+
+                foreach (var stepDefinitionAttribute in stepDefinitionAttributes)
                 {
                     metadata.Add(new BindingMetadata
                     {
                         Source = new BindingSourceMetadata
                         {
-                            Assembly = assembly.FullName!.Split(",").First(),
+                            Assembly = _module.Assembly.Name.Name,
                             ClassName = type.Name,
-                            MethodName = method.Name
+                            ClassFullName=type.FullName,
+                            MethodName = method.Name,
+                            ClassDescription = typeComment,
                         },
-                        StepType = GetStepType(stepBindingAttribute),
-                        Pattern = GetStepDefinitionAttributeValue(stepBindingAttribute),
-                        PatternType = GetStepDefinitionExpressionTypes(stepBindingAttribute),
-                        Description = GetStepDefinitionDescription(method),
-                        Parameters = GetStepDefinitionParameters(method),
+                        StepType = GetStepType(stepDefinitionAttribute),
+                        Expression = GetExpressionProperty(stepDefinitionAttribute),
+                        ExpressionType = GetExpressionTypeProperty(stepDefinitionAttribute),
+                        Description = GetStepDefinitionDescription(type.FullName, method.Name, method.Parameters),
+                        Parameters = GetStepDefinitionParameters(type.FullName,method.Name,method.Parameters),
                     });
                 }
-
             }
         }
 
         return metadata;
     }
 
-    private static string GetStepType(StepDefinitionBaseAttribute stepBindingAttribute)
+    private string GetTypeDescription(string typeName)
     {
-        if (stepBindingAttribute is GivenAttribute) return "Given";
-        if (stepBindingAttribute is WhenAttribute) return "When";
-        if (stepBindingAttribute is ThenAttribute) return "Then";
+        return _xmlDocumentationProvider.GetClassComment(typeName);
+    }
+
+    private string GetExpressionProperty(CustomAttribute stepDefinitionAttribute)
+    {
+        return stepDefinitionAttribute.ConstructorArguments.FirstOrDefault().Value.ToString() ?? "unknown";
+    }
+
+    private string GetExpressionTypeProperty(CustomAttribute stepDefinitionAttribute)
+    {
+        var prop = stepDefinitionAttribute.Properties
+            .FirstOrDefault(p => p.Name == "ExpressionType");
+        return prop.Argument.Value?.ToString()  ?? "Unspecified";
+    }
+
+    private static string GetStepType(CustomAttribute stepBindingAttribute)
+    {
+        if (stepBindingAttribute.AttributeType.FullName == "Reqnroll.GivenAttribute") return "Given";
+        if (stepBindingAttribute.AttributeType.FullName == "Reqnroll.WhenAttribute") return "When";
+        if (stepBindingAttribute.AttributeType.FullName == "Reqnroll.ThenAttribute") return "Then";
         throw new NotImplementedException(
             $"{stepBindingAttribute.GetType().FullName} is not a valid StepDefinition Type.");
     }
 
-    private static string GetStepDefinitionExpressionTypes(StepDefinitionBaseAttribute stepBindingAttribute)
+    private string GetStepDefinitionDescription(string ns, string methodName, Collection<ParameterDefinition> paramMap)
     {
-        return stepBindingAttribute.ExpressionType.ToString();
+        return _xmlDocumentationProvider.GetMethodComment(ns, methodName, paramMap.Select(x=>x.ParameterType.FullName));
     }
 
-    private static string GetStepDefinitionAttributeValue(StepDefinitionBaseAttribute stepBindingAttribute)
-    {
-        return stepBindingAttribute.Expression;
-    }
-
-    private string GetStepDefinitionDescription(MethodInfo method)
-    {
-        return _xmlDocumentationProvider.GetMethodComment(method);
-    }
-
-    private List<BindingSourceParameterInfo> GetStepDefinitionParameters(MethodInfo method)
+    private List<BindingSourceParameterInfo> GetStepDefinitionParameters(string ns, string methodName, Collection<ParameterDefinition> parameters)
     {
         var result = new List<BindingSourceParameterInfo>();
-        foreach (var parameter in method.GetParameters())
+        foreach (var parameter in parameters)
         {
             result.Add(new BindingSourceParameterInfo
             {
-                Name = parameter.Name!,
-                Description = _xmlDocumentationProvider.GetParameterComment(method, parameter),
-                ParameterType = parameter.ParameterType.Name
+                Name = parameter.Name,
+                Description = _xmlDocumentationProvider.GetParameterComment(ns, methodName, parameters.Select(x=>x.ParameterType.FullName), parameter.Name),
+                ParameterType = parameter.ParameterType.FullName
             });
         }
 
         return result;
+    }
+
+    public void Dispose()
+    {
+        _module.Dispose();
     }
 }

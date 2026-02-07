@@ -37,7 +37,7 @@ public static class MarkdownGenerator
         sb.AppendLine($"# {nsHeader}");
 
         var byClass = nsGroup
-            .GroupBy(b => b.Source.ClassName)
+            .GroupBy(b => b.Source.ClassFullName)
             .OrderBy(g => g.Key);
 
         foreach (var classGroup in byClass)
@@ -54,13 +54,15 @@ public static class MarkdownGenerator
         sb.AppendLine($"\n<a id=\"{classAnchor}\"></a>");
         sb.AppendLine($"## {classHeader}");
         sb.AppendLine();
+        sb.AppendLine(classGroup.FirstOrDefault()?.Source.ClassDescription ?? string.Empty);
+        sb.AppendLine();
         sb.AppendLine(TableHeader);
         sb.AppendLine(TableSeparator);
 
         foreach (var b in classGroup.OrderBy(x => x.Source.MethodName))
         {
             var methodName = EscapeAndNormalize(b.Source.MethodName);
-            var bindingValue = EscapeAndNormalize($"{b.StepType} {b.Pattern}");
+            var bindingValue = EscapeAndNormalize($"{b.StepType} {b.Expression}");
             var comments = BuildCommentsString(b.Description, b.Parameters);
             sb.AppendLine($"| {methodName} | {bindingValue} | {comments} |");
         }
