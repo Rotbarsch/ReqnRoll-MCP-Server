@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Text.Json;
 using ModelContextProtocol.Server;
 using ReqnRollBindingMetadataExtractorService.Services;
@@ -8,21 +9,11 @@ namespace ReqnRollMcpServer.Tools;
 [McpServerToolType]
 public static class BindingsTool
 {
-    [McpServerTool, Description("Returns information about all ReqnRoll bindings available.")]
-    public static string GetAvailableBindings()
+    [McpServerTool, Description("Returns information about all ReqnRoll bindings available. Provide the current working directory as the 'currentWorkingDirectory' parameter to scan for assemblies.")]
+    public static string GetAvailableBindings(string currentWorkingDirectory)
     {
-        return JsonSerializer.Serialize(BindingMetadataManager.GetAll());
-    }
+        Debugger.Launch();
 
-    [McpServerTool, Description("Returns information about ReqnRoll bindings in a specific assembly.")]
-    public static string GetBindingsFromAssembly(string assemblyName)
-    {
-        return JsonSerializer.Serialize(BindingMetadataManager.GetBindingsInAssembly(assemblyName));
-    }
-
-    [McpServerTool, Description("Returns information about ReqnRoll bindings of a specific StepDefinition Type (Given, When or Then).")]
-    public static string GetBindingsOfStepDefinitionType(string type)
-    {
-        return JsonSerializer.Serialize(BindingMetadataManager.GetBindingsByStepDefinitionType(type));
+        return JsonSerializer.Serialize(BindingMetadataManager.GetAll(currentWorkingDirectory));
     }
 }

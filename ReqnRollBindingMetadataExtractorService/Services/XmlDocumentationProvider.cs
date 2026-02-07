@@ -3,18 +3,45 @@ using System.Xml.XPath;
 
 namespace ReqnRollBindingMetadataExtractorService.Services;
 
-public class XmlDocumentationProvider(string xmlPath)
+public class XmlDocumentationProvider
 {
-    private readonly XDocument _xDoc = XDocument.Load(xmlPath);
+    private readonly XDocument? _xDoc;
+
+    public XmlDocumentationProvider(string xmlPath)
+    {
+        if(File.Exists(xmlPath))
+        {
+            _xDoc = XDocument.Load(xmlPath);
+        }
+    }
 
     public string GetMethodComment(string ns, string methodName,
         IEnumerable<string> paramMapValues)
     {
+        if (_xDoc is null) return string.Empty;
+
         var summary =
             _xDoc.XPathSelectElement($".//member[@name=\"{ConstructXPathMethodIdentifier(ns, methodName, paramMapValues)}\"]/summary")?.Value ??
             string.Empty;
 
         return summary.Trim();
+    }
+
+    public string GetParameterComment(string ns, string methodName, IEnumerable<string> parameterTypes, string parameterName)
+    {
+        if (_xDoc is null) return string.Empty;
+
+        var paramComment = _xDoc.XPathSelectElement($".//member[@name=\"{ConstructXPathMethodIdentifier(ns, methodName, parameterTypes)}\"]/param[@name=\"{parameterName}\"]")?.Value ?? string.Empty;
+
+        return paramComment.Trim();
+    }
+
+    public string GetClassComment(string typeName)
+    {
+        if (_xDoc is null) return string.Empty;
+
+        var classComment= _xDoc.XPathSelectElement($".//member[@name=\"T:{typeName}\"]/summary")?.Value ?? string.Empty;
+        return classComment.Trim();
     }
 
     private string ConstructXPathMethodIdentifier(string ns, string methodName, IEnumerable<string> parameterTypes)
@@ -31,18 +58,5 @@ public class XmlDocumentationProvider(string xmlPath)
         }
 
         return $"M:{ns}.{methodName}{parametersString}";
-    }
-
-    public string GetParameterComment(string ns, string methodName, IEnumerable<string> parameterTypes, string parameterName)
-    {
-        var paramComment = _xDoc.XPathSelectElement($".//member[@name=\"{ConstructXPathMethodIdentifier(ns, methodName, parameterTypes)}\"]/param[@name=\"{parameterName}\"]")?.Value ?? string.Empty;
-
-        return paramComment.Trim();
-    }
-
-    public string GetClassComment(string typeName)
-    {
-        var classComment= _xDoc.XPathSelectElement($".//member[@name=\"T:{typeName}\"]/summary")?.Value ?? string.Empty;
-        return classComment.Trim();
     }
 }

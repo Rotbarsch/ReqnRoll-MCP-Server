@@ -7,24 +7,10 @@ This project aims to simplify the creation of ReqnRoll feature files by allowing
 
 ## Setting up the server
 
-1. Clone the repository and ensure it builds (.NET 10 required). *Currently, it is not published to any repositories.*
-2. Prepare the [inputs.json](./ReqnRollMcpServer/inputs.json) by setting up the paths to DLL files containing ReqnRoll bindings and, if available, their XML documentation.
-If no XML documentation is provided, the server will attempt to find the corresponding XML next to the provided DLL.
-If still no XML file is found, the server will proceed without documentation for that binding, decreasing its value considerably.
-Example:
-```
-[
-	{
-		"dll": "FirstAssemblyWithBindings.dll",
-		"xml": "FirstAssemblyWithBindings.xml"		
-	},
-	{
-		"dll": "AnotherAssemblyWithBindings.dll",
-		"xml": "AnotherAssemblyWithBindings.xml"		
-	}
-]
-```
-Only bindings visible to the server through the configured `inputs.json` will be available when chatting with the AI agent of choice.
+Clone the repository and ensure it builds (.NET 10 required). *Currently, it is not published to any repositories.*
+
+That's it! The provided tool accepts a file-path as a parameter, which will then be recursively scanned for eligible dll files.
+In the context of an IDE like VS Code, this would in most cases be the root of the current working directory.
 
 ## Making the MCP server available to AI agents
 
