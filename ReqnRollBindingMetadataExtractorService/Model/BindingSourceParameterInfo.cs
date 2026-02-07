@@ -1,6 +1,6 @@
 ﻿namespace ReqnRollBindingMetadataExtractorService.Model;
 
-public record StepDefinitionParameterInfo
+public record BindingSourceParameterInfo
 {
     public required string Name { get; set; }
     public required string Description { get; set; }

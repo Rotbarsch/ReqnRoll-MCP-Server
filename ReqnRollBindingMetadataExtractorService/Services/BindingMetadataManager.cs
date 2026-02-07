@@ -5,14 +5,12 @@ namespace ReqnRollBindingMetadataExtractorService.Services;
 
 public static class BindingMetadataManager
 {
-    private static BindingMetadata _metadata= new BindingMetadata()
-    {
-        StepDefinitions = new List<StepDefinitionMetadata>(),
-        BindingClasses = new List<BindingClassMetadata>(),
-    };
+    private static List<BindingMetadata> _metadata= new List<BindingMetadata>();
 
     public static void Initialize()
     {
+        _metadata = new List<BindingMetadata>();
+
         var assemblyLocation = typeof(BindingMetadataManager).Assembly.Location;
         var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
         
@@ -21,46 +19,26 @@ public static class BindingMetadataManager
 
         var inputs = JsonSerializer.Deserialize<List<BindingAssemblyInput>>(inputJson);
 
-        var result = new BindingMetadata()
-        {
-            StepDefinitions = new List<StepDefinitionMetadata>(),
-            BindingClasses = new List<BindingClassMetadata>(),
-        };
-
         foreach (var input in inputs!)
         {
-            var service = new BindingMetadataExtractorService(input.Dll,input.Xml);
-            var inputMetadata = service.LoadMetadata();
-            result.StepDefinitions.AddRange(inputMetadata.StepDefinitions);
-            result.BindingClasses.AddRange(inputMetadata.BindingClasses);
+            using var service = new BindingMetadataExtractorService(input.Dll,input.Xml);
+            var metadata = service.LoadMetadata();
+            _metadata.AddRange(metadata);
         }
-
-        _metadata = result;
     }
 
-    public static BindingMetadata GetAll()
+    public static List<BindingMetadata> GetAll()
     {
         return _metadata;
     }
 
-    public static BindingMetadata GetBindingsInAssembly(string assemblyName)
+    public static List<BindingMetadata> GetBindingsInAssembly(string assemblyName)
     {
-        return new BindingMetadata
-        {
-            StepDefinitions = _metadata.StepDefinitions.Where(x=>x.Source.Assembly==assemblyName).ToList(),
-            BindingClasses = _metadata.BindingClasses.Where(x=>x.Assembly==assemblyName).ToList(),
-        };
+        return _metadata.Where(x => x.Source.Assembly == assemblyName).ToList();
     }
 
-    public static BindingMetadata GetBindingsByStepDefinitionType(string type)
+    public static List<BindingMetadata> GetBindingsByStepDefinitionType(string type)
     {
-        var relevantSteps = _metadata.StepDefinitions.Where(x => x.StepType == type).ToList();
-        return new BindingMetadata
-        {
-            StepDefinitions = relevantSteps.ToList(),
-            BindingClasses = _metadata.BindingClasses
-                .Where(x => relevantSteps.Any(step => step.Source.ClassFullName == x.ClassFullName))
-                .ToList(),
-        };
+        return _metadata.Where(x => x.StepType == type).ToList();
     }
 }
