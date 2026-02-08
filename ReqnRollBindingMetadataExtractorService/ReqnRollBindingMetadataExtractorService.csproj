@@ -4,6 +4,16 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Rotbarsch.ReqnrollBindingMetadataExtractor</PackageId>
+    <Description>Utilities for extracting metadata from Reqnroll bindings, including their comments.</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
