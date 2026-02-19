@@ -9,18 +9,30 @@ namespace ReqnRollBindingMetadataExtractorService.Services;
 public class BindingMetadataExtractorService : IDisposable
 {
     private readonly XmlDocumentationProvider _xmlDocumentationProvider;
-    private readonly ModuleDefinition _module;
+    private ModuleDefinition _module;
+    private readonly string _dllPath;
 
     public BindingMetadataExtractorService(string dllPath, string? xmlPath = null)
     {
         var defaultDocPath = Path.ChangeExtension(dllPath, "xml");
+        _dllPath = dllPath;
 
         _xmlDocumentationProvider = !string.IsNullOrEmpty(xmlPath) ? new XmlDocumentationProvider(xmlPath) : new XmlDocumentationProvider(defaultDocPath);
-        _module = ModuleDefinition.ReadModule(dllPath);
     }
     
     public List<BindingMetadata> LoadMetadata()
     {
+        try
+        {
+            // Unmanaged dlls are not readable by Mono.Cecil and throw exceptions.
+            // We catch this and return an empty list, as it means there are no bindings to extract.
+            _module = ModuleDefinition.ReadModule(_dllPath);
+        }
+        catch (BadImageFormatException)
+        {
+            return new List<BindingMetadata>();
+        }
+
         var metadata = new List<BindingMetadata>();
         string[] stepDefinitionAttributeNames = ["Reqnroll.GivenAttribute","Reqnroll.WhenAttribute", "Reqnroll.ThenAttribute"];
 
@@ -113,6 +125,6 @@ public class BindingMetadataExtractorService : IDisposable
 
     public void Dispose()
     {
-        _module.Dispose();
+        _module?.Dispose();
     }
 }
