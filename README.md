@@ -83,3 +83,15 @@ In case of nuget packages, check `%HOMEPATH%/.nuget/packages` for the XML docume
 
 ## Bonus: Markdown Documentation Generator
 The repository also includes a simple console application that generates markdown documentation for all available ReqnRoll bindings based on the same `inputs.json` file used by the MCP server. Simply start the console app with an argument providing the desired output file path (eg. `C:/source/Bindings.md`) and prepared `inputs.json`.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+### Third-Party Dependencies
+
+This project depends on ModelContextProtocol, which is licensed under the Apache License, Version 2.0.
+
+A copy of the Apache License 2.0 and required notices are included in [THIRD-PARTY-NOTICES.txt](./THIRD-PARTY-NOTICES.txt).
+
+The Apache License 2.0 grants a patent license from its contributors and requires preservation of license and notice information when redistributing the software.
