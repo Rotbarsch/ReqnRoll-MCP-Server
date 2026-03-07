@@ -18,7 +18,7 @@ Assuming you have the GitHub Copilot extension installed in Visual Studio Code, 
 5. Next, select "Command (stdio)".
 6. Enter the following command in the prompt and confirm:
 ```
-dnx Rotbarsch-ReqnrollMcpServer --yes
+dnx Rotbarsch.ReqnrollMcpServer --yes
 ```
 7. Enter a unique and informative name for your configuration, e.g., "ReqnRoll MCP Server".
 8. A file named `mcp.json` located in your `%APPDATA%/Code/User` directory will open. It should look something like this:
@@ -55,7 +55,7 @@ After confirming that prompt, you should get an answer listing all available Req
 - Destination: Select whether you want the server to be available globally or in the current solution only.
 - Server ID: Enter a unique and informative name for your configuration, e.g., "ReqnRoll MCP Server".
 - Type: Select "stdio".
-- Command: Enter `dnx Rotbarsch-ReqnrollMcpServer --yes`.
+- Command: Enter `dnx Rotbarsch.ReqnrollMcpServer --yes`.
 5. Click "Save". The MCP server is now added to your list of available tools.
 6. GitHub Copilot is now ready for use. Try prompting it with:
 ```
