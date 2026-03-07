@@ -35,6 +35,9 @@ jobs:
       - name: Pack MetadataExtractorService
         run: dotnet pack ReqnRollBindingMetadataExtractorService/ReqnRollBindingMetadataExtractorService.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
 
+      - name: Publish to NuGet
+        run: dotnet nuget push "ReqnRollBindingMetadataExtractorService/**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
       # ReqnrollMcpServer
       - name: Restore ReqnrollMcpServer
         run: dotnet restore ReqnRollMcpServer/ReqnRollMcpServer.csproj
@@ -44,6 +47,9 @@ jobs:
 
       - name: Pack ReqnrollMcpServer
         run: dotnet pack ReqnRollMcpServer/ReqnRollMcpServer.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Publish to NuGet
+        run: dotnet nuget push "ReqnRollMcpServer/**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       # ReqnrollDocumentationGenerator
       - name: Restore ReqnRollBindingDocumentationGenerator
@@ -55,7 +61,6 @@ jobs:
       - name: Pack ReqnRollBindingDocumentationGenerator
         run: dotnet pack ReqnRollBindingDocumentationGenerator/ReqnRollBindingDocumentationGenerator.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
 
-      # Publish
       - name: Publish to NuGet
-        run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "ReqnRollBindingDocumentationGenerator/**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
