@@ -1,16 +1,9 @@
 # ReqnRollMcpServer
 
-This is a Proof-of-Concept (PoC) implementation of a MCP (Model Context Protocol) server for [ReqnRoll](https://github.com/reqnroll/Reqnroll) bindings, to enable AI agents to get information on the available bindings.
+This is a Proof-of-Concept (PoC) implementation of a MCP (Model Context Protocol) server for [Reqnroll](https://github.com/reqnroll/Reqnroll) bindings, to enable AI agents to get information on the available bindings.
 
 ## Mission Statement
 This project aims to simplify the creation of ReqnRoll feature files by allowing AI agents to query available ReqnRoll bindings and their documentation directly in a format suited for AI agents, minimizing AI hallucinations and providing necessary context to the agent.
-
-## Setting up the server
-
-Clone the repository and ensure it builds (.NET 10 required). *Currently, it is not published to any repositories.*
-
-That's it! The provided tool accepts a file-path as a parameter, which will then be recursively scanned for eligible dll files.
-In the context of an IDE like VS Code, this would in most cases be the root of the current working directory.
 
 ## Making the MCP server available to AI agents
 
@@ -25,10 +18,8 @@ Assuming you have the GitHub Copilot extension installed in Visual Studio Code, 
 5. Next, select "Command (stdio)".
 6. Enter the following command in the prompt and confirm:
 ```
-dotnet run --project PATH_TO_YOUR_CLONED_REPO/ReqnRollMcpServer/ReqnRollMcpServer.csproj
+dnx Rotbarsch-ReqnrollMcpServer --yes
 ```
-Replace `PATH_TO_YOUR_CLONED_REPO` with your local path to the cloned ReqnRollMcpServer repository.
-
 7. Enter a unique and informative name for your configuration, e.g., "ReqnRoll MCP Server".
 8. A file named `mcp.json` located in your `%APPDATA%/Code/User` directory will open. It should look something like this:
 ```
@@ -36,11 +27,11 @@ Replace `PATH_TO_YOUR_CLONED_REPO` with your local path to the cloned ReqnRollMc
 	"servers": {
 		"ReqnRollMcp": {
 			"type": "stdio",
-			"command": "dotnet",
+			"command": "dnx",
 			"args": [
-				"run",
-				"--project",
-				"C:\\...\\ReqnRollMcpServer\\ReqnRollMcpServer.csproj"
+				"Rotbarsch-ReqnrollMcpServer",
+				"--yes",
+				""
 			]
 		}
 	},
@@ -64,7 +55,7 @@ After confirming that prompt, you should get an answer listing all available Req
 - Destination: Select whether you want the server to be available globally or in the current solution only.
 - Server ID: Enter a unique and informative name for your configuration, e.g., "ReqnRoll MCP Server".
 - Type: Select "stdio".
-- Command: Enter `dotnet run --project PATH_TO_YOUR_CLONED_REPO/ReqnRollMcpServer/ReqnRollMcpServer.csproj`, replacing `PATH_TO_YOUR_CLONED_REPO` with your local file path.
+- Command: Enter `dnx Rotbarsch-ReqnrollMcpServer --yes`.
 5. Click "Save". The MCP server is now added to your list of available tools.
 6. GitHub Copilot is now ready for use. Try prompting it with:
 ```
@@ -74,7 +65,7 @@ List all available ReqnRoll bindings.
 After confirming that prompt, you should get an answer listing all available ReqnRoll bindings in the defined assemblies.
 
 ## "Unable to load type" and similar messages
-Make sure all dependencies of the assemblies configured in `inputs.json` lie either next to the assembly or in the base directory of the MCP server. The easieest way to achieve this is by setting the paths of a runnable, buildable ReqnRoll project referencing and using those bindings instead of the bindings project itself.
+Make sure all dependencies of the assemblies lie next to the assembly to inspect. The easieest way to achieve this is by setting the paths of a runnable, buildable ReqnRoll project referencing and using those bindings instead of the bindings project itself.
 
 ## The documentation XML is nowhere to be found
 Depending on the configuration of the bindings csproj file, XML documentation is not always copied to the output directory. 

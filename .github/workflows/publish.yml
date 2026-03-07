@@ -23,16 +23,44 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
-      - name: Restore
+      # MetadataExtractorService
+      - name: Restore MetadataExtractorService
         run: dotnet restore ReqnRollBindingMetadataExtractorService/ReqnRollBindingMetadataExtractorService.csproj
 
-      - name: Build
+      - name: Build MetadataExtractorService
         run: dotnet build ReqnRollBindingMetadataExtractorService/ReqnRollBindingMetadataExtractorService.csproj --configuration Release --no-restore -p:Version=${{ steps.version.outputs.VERSION }}
 
-      - name: Pack
+      - name: Pack MetadataExtractorService
         run: dotnet pack ReqnRollBindingMetadataExtractorService/ReqnRollBindingMetadataExtractorService.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
 
-      - name: Publish to NuGet
+      - name: Publish MetadataExtractorService to NuGet
         run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      # ReqnrollMcpServer
+      - name: Restore ReqnrollMcpServer
+        run: dotnet restore ReqnRollMcpServer/ReqnRollMcpServer.csproj
+
+      - name: Build ReqnrollMcpServer
+        run: dotnet build ReqnRollMcpServer/ReqnRollMcpServer.csproj --configuration Release --no-restore -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Pack ReqnrollMcpServer
+        run: dotnet pack ReqnRollMcpServer/ReqnRollMcpServer.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Publish ReqnrollMcpServer to NuGet
+        run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # ReqnrollDocumentationGenerator
+      - name: Restore ReqnRollBindingDocumentationGenerator
+        run: dotnet restore ReqnRollBindingDocumentationGenerator/ReqnRollBindingDocumentationGenerator.csproj
+
+      - name: Build ReqnRollBindingDocumentationGenerator
+        run: dotnet build ReqnRollBindingDocumentationGenerator/ReqnRollBindingDocumentationGenerator.csproj --configuration Release --no-restore -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Pack ReqnRollBindingDocumentationGenerator
+        run: dotnet pack ReqnRollBindingDocumentationGenerator/ReqnRollBindingDocumentationGenerator.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Publish ReqnRollBindingDocumentationGenerator to NuGet
+        run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
