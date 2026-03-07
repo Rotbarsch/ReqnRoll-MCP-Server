@@ -14,7 +14,7 @@
     <PackageId>Rotbarsch.ReqnrollMcpServer</PackageId>
     <Authors>Rotbarsch</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>../README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <!--Fast startup-->
     <PublishReadyToRun>true</PublishReadyToRun>
@@ -23,6 +23,7 @@
   <ItemGroup>
     <!-- Include third-party notices inside the NuGet package -->
     <None Include="../THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
