@@ -7,7 +7,26 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <!---DNX support-->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>Rotbarsch-ReqnrollDocumentationGenerator</ToolCommandName>
+
+    <!--NuGet Metadata-->
+    <PackageId>Rotbarsch.ReqnrollDocumentationGenerator</PackageId>
+    <Authors>Rotbarsch</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>../README.md</PackageReadmeFile>
+
+    <!--Fast startup-->
+    <PublishReadyToRun>true</PublishReadyToRun>
+
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include third-party notices inside the NuGet package -->
+    <None Include="../THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ReqnRollBindingMetadataExtractorService\ReqnRollBindingMetadataExtractorService.csproj" />
