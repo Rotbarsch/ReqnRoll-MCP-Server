@@ -40,13 +40,13 @@ jobs:
       
       # ReqnrollMcpServer
       - name: Restore ReqnrollMcpServer
-        run: dotnet restore ReqnrollMcpServer/ReqnrollMcpServer.csproj
+        run: dotnet restore ReqnRollMcpServer/ReqnRollMcpServer.csproj
 
       - name: Build ReqnrollMcpServer
-        run: dotnet build ReqnrollMcpServer/ReqnrollMcpServer.csproj --configuration Release --no-restore -p:Version=${{ steps.version.outputs.VERSION }}
+        run: dotnet build ReqnRollMcpServer/ReqnRollMcpServer.csproj --configuration Release --no-restore -p:Version=${{ steps.version.outputs.VERSION }}
 
       - name: Pack ReqnrollMcpServer
-        run: dotnet pack ReqnrollMcpServer/ReqnrollMcpServer.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
+        run: dotnet pack ReqnRollMcpServer/ReqnRollMcpServer.csproj --configuration Release --no-build -p:ContinuousIntegrationBuild=true -p:Version=${{ steps.version.outputs.VERSION }}
 
       - name: Publish ReqnrollMcpServer to NuGet
         run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
