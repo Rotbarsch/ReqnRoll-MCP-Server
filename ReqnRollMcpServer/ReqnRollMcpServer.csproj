@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
-
     <!---DNX support-->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>Rotbarsch-ReqnrollMcpServer</ToolCommandName>
