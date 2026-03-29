@@ -73,8 +73,24 @@ In that case, either adjust the bindings project to copy the XML documentation t
 In case of nuget packages, check `%HOMEPATH%/.nuget/packages` for the XML documentation files.
 
 ## Bonus: Markdown Documentation Generator
-The repository also includes a simple console application that generates markdown documentation for all available ReqnRoll bindings based on the same `inputs.json` file used by the MCP server. Simply start the console app with an argument providing the desired output file path (eg. `C:/source/Bindings.md`) and prepared `inputs.json`.
+The functionality to extract markdown documentation of Reqnroll bindings from an assembly is also available as a standalone command line tool.
 
+Use via the following:
+
+```
+dnx Rotbarsch.ReqnrollDocumentationGenerator -i "<pathToAssembly>;<pathToXml>" -i "<pathToAssembly2>;<pathToXml2>" -o "<outputpath>"
+```
+
+Example:
+
+```
+dnx Rotbarsch.ReqnrollDocumentationGenerator -i "..\TestProject\MyBindings.dll;..\TestProject\MyBindings.xml" -o "Bindings.md"
+```
+
+You can get further information by calling:
+```
+dnx Rotbarsch.ReqnrollDocumentationGenerator --help
+```
 
 ## License
 
