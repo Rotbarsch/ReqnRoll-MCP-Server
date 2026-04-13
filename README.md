@@ -29,9 +29,8 @@ dnx Rotbarsch.ReqnrollMcpServer --yes
 			"type": "stdio",
 			"command": "dnx",
 			"args": [
-				"Rotbarsch-ReqnrollMcpServer",
-				"--yes",
-				""
+				"Rotbarsch.ReqnrollMcpServer",
+				"--yes"
 			]
 		}
 	},
@@ -52,10 +51,23 @@ After confirming that prompt, you should get an answer listing all available Req
 2. Click the small wrench icon on the bottom right of the chat window labeled "Select tools". A list of available MCP servers opens.
 3. Click the small green plus on the top right of the tool list. A new dialog opens.
 4. Fill out the dialog:
-- Destination: Select whether you want the server to be available globally or in the current solution only.
-- Server ID: Enter a unique and informative name for your configuration, e.g., "ReqnRoll MCP Server".
-- Type: Select "stdio".
-- Command: Enter `dnx Rotbarsch.ReqnrollMcpServer --yes`.
+
+```
+{
+  "inputs": [],
+  "servers": {
+    "ReqnRollBindings": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "Rotbarsch.ReqnrollMcpServer",
+        "--yes"
+      ],
+      "env": {}
+    }
+  }
+}
+```
 5. Click "Save". The MCP server is now added to your list of available tools.
 6. GitHub Copilot is now ready for use. Try prompting it with:
 ```
